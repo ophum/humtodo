@@ -9,6 +9,7 @@ type TaskEntity struct {
 	Plan      int          `json:"plan"`
 	Todos     []TodoEntity `json:"todos"`
 	Assignees []UserEntity `json:"assignees"`
+	ProjectId string       `json:"project_id"`
 }
 
 // +gen-ts-entity
