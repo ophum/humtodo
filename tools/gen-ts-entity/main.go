@@ -71,13 +71,18 @@ func main() {
 								}
 								for _, field := range structType.Fields.List {
 									ident := &ast.Ident{}
+									fieldType := ""
 									switch field.Type.(type) {
 									case *ast.SelectorExpr:
 										ident = field.Type.(*ast.SelectorExpr).Sel
+										fieldType = ident.Name
 									case *ast.Ident:
 										ident = field.Type.(*ast.Ident)
+										fieldType = ident.Name
+									case *ast.ArrayType:
+										ident = field.Type.(*ast.ArrayType).Elt.(*ast.Ident)
+										fieldType = ident.Name + "[]"
 									}
-									fieldType := ident.Name
 
 									for _, name := range field.Names {
 										// TODO: このあたり切り出したい
