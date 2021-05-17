@@ -44,14 +44,15 @@ func projectRoutes(e *echo.Group, projectRepo repositories.ProjectRepository, ta
 		g.POST("", projController.Create)
 		g.PATCH("/:id/join", projController.Join)
 
-		taskRoutes(g)
+		taskRoutes(g, projectService)
 	}
 }
 
-func taskRoutes(e *echo.Group) {
-	taskController := controllers.NewTaskController()
-	g := e.Group("/tasks")
+func taskRoutes(e *echo.Group, projectService *services.ProjectService) {
+	taskController := controllers.NewTaskController(*projectService)
+	g := e.Group("/:proj_id/tasks")
 	{
 		g.GET("", taskController.Index)
+		g.POST("", taskController.Create)
 	}
 }

@@ -65,3 +65,10 @@ func (s *ProjectService) Join(id, userId string) error {
 	_, err = s.projectRepo.Update(project)
 	return err
 }
+
+func (s *ProjectService) AddTask(projectId, title string) (entities.TaskEntity, error) {
+	return s.taskRepo.Create(entities.TaskEntity{
+		Title:     title,
+		ProjectId: projectId,
+	})
+}
