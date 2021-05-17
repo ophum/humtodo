@@ -18,11 +18,13 @@ func NewAuthController(authService services.AuthService) *AuthController {
 	}
 }
 
+// +gen-ts-entity
 type SignUpRequest struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
+// +gen-ts-entity
 type SignUpResponse struct {
 	Token string `json:"token"`
 }
@@ -45,11 +47,13 @@ func (c *AuthController) SignUp(ctx echo.Context) error {
 	})
 }
 
+// +gen-ts-entity
 type SignInRequest struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
+// +gen-ts-entity
 type SignInResponse struct {
 	Token string `json:"token"`
 }
@@ -73,10 +77,12 @@ func (c *AuthController) SignOut(ctx echo.Context) error {
 	return nil
 }
 
+// +gen-ts-entity
 type VerifyRequest struct {
 	Token string `json:"token"`
 }
 
+// +gen-ts-entity
 type VerifyResponse struct {
 	Token string `json:"token"`
 }

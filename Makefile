@@ -1,0 +1,3 @@
+
+gen-entity:
+	go run tools/gen-ts-entity/main.go --load-path ./...
