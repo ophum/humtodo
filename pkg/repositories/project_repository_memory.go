@@ -63,3 +63,17 @@ func (r *ProjectRepositoryInMemory) Delete(id string) error {
 	}
 	return nil
 }
+
+func (r *ProjectRepositoryInMemory) IsJoinedMember(id, userId string) (bool, error) {
+	project, err := r.Find(id)
+	if err != nil {
+		return false, err
+	}
+
+	for _, mid := range project.MemberIds {
+		if mid == userId {
+			return true, nil
+		}
+	}
+	return false, nil
+}

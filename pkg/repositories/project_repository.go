@@ -10,4 +10,6 @@ type ProjectRepository interface {
 	Create(project entities.ProjectEntity) (entities.ProjectEntity, error)
 	Update(project entities.ProjectEntity) (entities.ProjectEntity, error)
 	Delete(id string) error
+
+	IsJoinedMember(id, userId string) (bool, error)
 }
