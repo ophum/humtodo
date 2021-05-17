@@ -14,16 +14,19 @@ func Init() *echo.Echo {
 	projectRepo := repositories.NewProjectRepositoryInMemory()
 	taskRepo := repositories.NewTaskRepositoryInMemory()
 
-	authRoutes(e, userRepo)
-	projectRoutes(e, projectRepo, taskRepo)
+	api := e.Group("/api")
+	{
+		authRoutes(api, userRepo)
+		projectRoutes(api, projectRepo, taskRepo)
+	}
 
 	return e
 }
 
-func authRoutes(e *echo.Echo, userRepo repositories.UserRepository) {
+func authRoutes(e *echo.Group, userRepo repositories.UserRepository) {
 	authService := services.NewAuthService([]byte("test"), &userRepo)
 	authController := controllers.NewAuthController(*authService)
-	g := e.Group("auth")
+	g := e.Group("/auth")
 	{
 		g.POST("/sign-in", authController.SignIn)
 		g.POST("/sign-up", authController.SignUp)
@@ -31,14 +34,24 @@ func authRoutes(e *echo.Echo, userRepo repositories.UserRepository) {
 	}
 }
 
-func projectRoutes(e *echo.Echo, projectRepo repositories.ProjectRepository, taskRepo repositories.TaskRepository) {
+func projectRoutes(e *echo.Group, projectRepo repositories.ProjectRepository, taskRepo repositories.TaskRepository) {
 	projectService := services.NewProjectService(projectRepo, taskRepo)
 	projController := controllers.NewProjectController(*projectService)
-	g := e.Group("projects")
+	g := e.Group("/projects")
 	{
 		g.GET("", projController.Index)
 		g.GET("/:id", projController.Show)
 		g.POST("", projController.Create)
 		g.PATCH("/:id/join", projController.Join)
+
+		taskRoutes(g)
+	}
+}
+
+func taskRoutes(e *echo.Group) {
+	taskController := controllers.NewTaskController()
+	g := e.Group("/tasks")
+	{
+		g.GET("", taskController.Index)
 	}
 }
