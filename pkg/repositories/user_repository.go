@@ -5,6 +5,7 @@ import (
 )
 
 type UserRepository interface {
+	Find(id string) (entities.UserEntity, error)
 	FindByName(name string) (entities.UserEntity, error)
 	Create(u entities.UserEntity) (entities.UserEntity, error)
 }

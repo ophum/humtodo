@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/ophum/humtodo/pkg/entities"
 	"gopkg.in/yaml.v2"
 )
@@ -16,6 +17,15 @@ func NewUserRepositoryInMemory() *UserRepositoryInMemory {
 	return &UserRepositoryInMemory{
 		db: []entities.UserEntity{},
 	}
+}
+
+func (r *UserRepositoryInMemory) Find(id string) (entities.UserEntity, error) {
+	for _, u := range r.db {
+		if u.ID == id {
+			return u, nil
+		}
+	}
+	return entities.UserEntity{}, fmt.Errorf("Not found")
 }
 
 func (r *UserRepositoryInMemory) FindByName(name string) (entities.UserEntity, error) {
@@ -32,9 +42,14 @@ func (r *UserRepositoryInMemory) Create(u entities.UserEntity) (entities.UserEnt
 		return entities.UserEntity{}, fmt.Errorf("Already exists")
 	}
 
+	id := uuid.NewString()
+	if _, err := r.Find(id); err == nil {
+		return entities.UserEntity{}, fmt.Errorf("Duplicate id")
+	}
+
+	u.ID = id
 	r.db = append(r.db, u)
 
-	debug(r.db)
 	return r.FindByName(u.Name)
 }
 

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -35,7 +34,6 @@ func (c *AuthController) SignUp(ctx echo.Context) error {
 		return err
 	}
 
-	log.Println(req)
 	token, err := c.authService.SignUp(req.Name, req.Password)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{

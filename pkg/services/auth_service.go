@@ -29,7 +29,7 @@ func (s *AuthService) SignUp(name, password string) (string, error) {
 		return "", err
 	}
 
-	_, err = s.userRepo.Create(entities.UserEntity{
+	user, err := s.userRepo.Create(entities.UserEntity{
 		Name:     name,
 		Password: string(hashed),
 	})
@@ -37,7 +37,7 @@ func (s *AuthService) SignUp(name, password string) (string, error) {
 		return "", err
 	}
 
-	return s.generateToken(name)
+	return s.generateToken(user.ID, user.Name)
 }
 
 func (s *AuthService) SignIn(name, password string) (string, error) {
@@ -50,7 +50,7 @@ func (s *AuthService) SignIn(name, password string) (string, error) {
 		return "", err
 	}
 
-	return s.generateToken(name)
+	return s.generateToken(user.ID, name)
 }
 
 func (s *AuthService) Verify(token string) (string, error) {
@@ -63,7 +63,7 @@ func (s *AuthService) Verify(token string) (string, error) {
 		if !ok {
 			return "", fmt.Errorf("unauthorized")
 		}
-		return s.generateToken(claims["name"].(string))
+		return s.generateToken(claims["id"].(string), claims["name"].(string))
 	} else if ve, ok := err.(*jwt.ValidationError); ok {
 		return "", ve
 	} else {
@@ -71,9 +71,10 @@ func (s *AuthService) Verify(token string) (string, error) {
 	}
 }
 
-func (s *AuthService) generateToken(name string) (string, error) {
+func (s *AuthService) generateToken(id, name string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
+	claims["uid"] = id
 	claims["name"] = name
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 	return token.SignedString(s.secret)
