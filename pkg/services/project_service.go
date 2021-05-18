@@ -52,6 +52,10 @@ func (s *ProjectService) Create(name, uid string) (entities.ProjectEntity, error
 	})
 }
 
+func (s *ProjectService) IsJoined(id, userId string) (bool, error) {
+	return s.projectRepo.IsJoinedMember(id, userId)
+}
+
 func (s *ProjectService) Join(id, userId string) error {
 	isJoined, err := s.projectRepo.IsJoinedMember(id, userId)
 	if err != nil {
@@ -73,9 +77,11 @@ func (s *ProjectService) Join(id, userId string) error {
 	return err
 }
 
-func (s *ProjectService) AddTask(projectId, title string) (entities.TaskEntity, error) {
+func (s *ProjectService) AddTask(projectId, title string, plan int, assigneeIds []string) (entities.TaskEntity, error) {
 	return s.taskRepo.Create(entities.TaskEntity{
-		Title:     title,
-		ProjectId: projectId,
+		Title:       title,
+		Plan:        plan,
+		AssigneeIds: assigneeIds,
+		ProjectId:   projectId,
 	})
 }

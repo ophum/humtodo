@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/ophum/humtodo/pkg/entities"
 	"github.com/ophum/humtodo/pkg/services"
 )
 
@@ -23,20 +24,39 @@ func (c *TaskController) Index(ctx echo.Context) error {
 
 // +gen-ts-entity
 type CreateTaskRequest struct {
-	Title string `json:"title"`
+	Title       string   `json:"title"`
+	Plan        int      `json:"plan"`
+	AssigneeIds []string `json:"assignee_ids"`
+}
+
+// +gen-ts-entity
+type CreateTaskResponse struct {
+	Task entities.TaskEntity `json:"task"`
 }
 
 func (c *TaskController) Create(ctx echo.Context) error {
+	user := getUser(ctx)
 	projId := ctx.Param("proj_id")
-	req := CreateTaskRequest{}
-	ctx.Bind(&req)
 
-	task, err := c.projectService.AddTask(projId, req.Title)
+	if joined, err := c.projectService.IsJoined(projId, user.Uid); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	} else if !joined {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"error": "forbidden",
+		})
+	}
+
+	req := CreateTaskRequest{}
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	task, err := c.projectService.AddTask(projId, req.Title, req.Plan, req.AssigneeIds)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}
 
-	return ctx.JSON(http.StatusCreated, map[string]interface{}{
-		"task": task,
+	return ctx.JSON(http.StatusCreated, CreateTaskResponse{
+		Task: task,
 	})
 }
