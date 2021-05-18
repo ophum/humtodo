@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/ophum/humtodo/pkg/entities"
 	"github.com/ophum/humtodo/pkg/repositories"
 )
@@ -83,5 +85,23 @@ func (s *ProjectService) AddTask(projectId, title string, plan int, assigneeIds 
 		Plan:        plan,
 		AssigneeIds: assigneeIds,
 		ProjectId:   projectId,
+	})
+}
+
+func (s *ProjectService) AddTodo(projId, taskId, assigneeId, description, startDatetime, endDatetime string) (entities.TaskEntity, error) {
+	task, err := s.taskRepo.Find(taskId)
+	if err != nil {
+		return entities.TaskEntity{}, err
+	}
+
+	if task.ProjectId != projId {
+		return entities.TaskEntity{}, fmt.Errorf("Not found")
+	}
+
+	return s.taskRepo.AddTodo(taskId, entities.TodoEntity{
+		AssigneeId:    assigneeId,
+		StartDatetime: startDatetime,
+		EndDatetime:   endDatetime,
+		Description:   description,
 	})
 }

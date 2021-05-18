@@ -49,3 +49,24 @@ func (r *TaskRepositoryInMemory) Create(task entities.TaskEntity) (entities.Task
 
 	return r.Find(id)
 }
+
+func (r *TaskRepositoryInMemory) Update(task entities.TaskEntity) (entities.TaskEntity, error) {
+	for i, t := range r.db {
+		if t.ID == task.ID {
+			r.db[i] = task
+			return r.Find(task.ID)
+		}
+	}
+	return entities.TaskEntity{}, fmt.Errorf("Not found")
+}
+
+func (r *TaskRepositoryInMemory) AddTodo(taskId string, todo entities.TodoEntity) (entities.TaskEntity, error) {
+	t, err := r.Find(taskId)
+	if err != nil {
+		return entities.TaskEntity{}, err
+	}
+
+	t.Todos = append(t.Todos, todo)
+
+	return r.Update(t)
+}

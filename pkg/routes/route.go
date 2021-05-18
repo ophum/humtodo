@@ -61,5 +61,6 @@ func taskRoutes(e *echo.Group, projectService *services.ProjectService) {
 	{
 		g.GET("", taskController.Index)
 		g.POST("", taskController.Create)
+		g.POST("/:id/add-todo", taskController.AddTodo)
 	}
 }

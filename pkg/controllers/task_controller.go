@@ -60,3 +60,44 @@ func (c *TaskController) Create(ctx echo.Context) error {
 		Task: task,
 	})
 }
+
+// +gen-ts-entity
+type AddTodoRequest struct {
+	AssigneeId    string `json:"assignee_id"`
+	StartDatetime string `json:"start_datetime"`
+	EndDatetime   string `json:"end_datetime"`
+	Description   string `json:"description"`
+}
+
+// +gen-ts-entity
+type AddTodoResponse struct {
+	Task entities.TaskEntity `json:"task" ts-import:"../entities/entities"`
+}
+
+func (c *TaskController) AddTodo(ctx echo.Context) error {
+	user := getUser(ctx)
+	projId := ctx.Param("proj_id")
+	taskId := ctx.Param("id")
+
+	if joined, err := c.projectService.IsJoined(projId, user.Uid); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	} else if !joined {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"error": "forbidden",
+		})
+	}
+
+	req := AddTodoRequest{}
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	task, err := c.projectService.AddTodo(projId, taskId, req.AssigneeId, req.Description, req.StartDatetime, req.EndDatetime)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return ctx.JSON(http.StatusCreated, AddTodoResponse{
+		Task: task,
+	})
+}
