@@ -10,6 +10,7 @@ import (
 
 func Init() *echo.Echo {
 	e := echo.New()
+	e.Use(middleware.CORS())
 
 	userRepo := repositories.NewUserRepositoryInMemory()
 	projectRepo := repositories.NewProjectRepositoryInMemory()

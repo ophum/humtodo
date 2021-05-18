@@ -34,7 +34,7 @@ func main() {
 
 	pkgs, err := packages.Load(config, loadPath)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("load: ", err.Error())
 	}
 
 	for _, pkg := range pkgs {
@@ -168,13 +168,13 @@ func main() {
 
 		t, err := template.New("").Parse(tsTemplate)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Fatal("parse template: ", err.Error())
 		}
 		dirPath := filepath.Join(dest, pkg.Name)
 		os.MkdirAll(dirPath, 0755)
 		d, err := os.Create(filepath.Join(dirPath, pkg.Name+".ts"))
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Fatal("create gen file: ", err.Error())
 		}
 		defer d.Close()
 
@@ -183,7 +183,7 @@ func main() {
 			Entities: templateEntities,
 		}
 		if err := t.Execute(d, args); err != nil {
-			log.Fatal(err.Error())
+			log.Fatal("execute template: ", err.Error())
 		}
 
 	}

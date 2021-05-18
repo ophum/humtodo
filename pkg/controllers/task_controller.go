@@ -31,7 +31,7 @@ type CreateTaskRequest struct {
 
 // +gen-ts-entity
 type CreateTaskResponse struct {
-	Task entities.TaskEntity `json:"task"`
+	Task entities.TaskEntity `json:"task" ts-import:"../entities/entities"`
 }
 
 func (c *TaskController) Create(ctx echo.Context) error {
