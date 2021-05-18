@@ -31,6 +31,19 @@ func (r *ProjectRepositoryInMemory) FindAll() ([]entities.ProjectEntity, error) 
 	return r.db, nil
 }
 
+func (r *ProjectRepositoryInMemory) FindJoinedAll(userId string) ([]entities.ProjectEntity, error) {
+	projects := []entities.ProjectEntity{}
+	for _, p := range r.db {
+		for _, uid := range p.MemberIds {
+			if uid == userId {
+				projects = append(projects, p)
+				break
+			}
+		}
+	}
+	return projects, nil
+}
+
 func (r *ProjectRepositoryInMemory) Create(project entities.ProjectEntity) (entities.ProjectEntity, error) {
 	id := uuid.NewString()
 

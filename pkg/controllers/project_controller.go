@@ -20,7 +20,9 @@ func NewProjectController(projectService services.ProjectService) *ProjectContro
 }
 
 func (c *ProjectController) Index(ctx echo.Context) error {
-	projects, err := c.projectService.FindAll()
+	user := getUser(ctx)
+
+	projects, err := c.projectService.FindJoinedAll(user.Uid)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, nil)
 	}
@@ -49,13 +51,12 @@ type CreateProjectRequest struct {
 }
 
 func (c *ProjectController) Create(ctx echo.Context) error {
-	user := ctx.Get(middleware.DefaultJWTConfig.ContextKey).(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
+	user := getUser(ctx)
 
 	req := CreateProjectRequest{}
 	ctx.Bind(&req)
 
-	project, err := c.projectService.Create(req.Name, claims["uid"].(string))
+	project, err := c.projectService.Create(req.Name, user.Uid)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, nil)
 	}
@@ -79,4 +80,30 @@ func (c *ProjectController) Join(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, nil)
+}
+
+type AuthUser struct {
+	Uid  string
+	Name string
+	Exp  int64
+}
+
+func getUser(ctx echo.Context) AuthUser {
+	user := ctx.Get(middleware.DefaultJWTConfig.ContextKey).(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	ret := AuthUser{}
+	if uid, ok := claims["uid"]; ok {
+		ret.Uid = uid.(string)
+	}
+
+	if name, ok := claims["name"]; ok {
+		ret.Name = name.(string)
+	}
+
+	if exp, ok := claims["exp"]; ok {
+		ret.Exp = int64(exp.(float64))
+	}
+
+	return ret
 }

@@ -7,6 +7,7 @@ import (
 type ProjectRepository interface {
 	Find(id string) (entities.ProjectEntity, error)
 	FindAll() ([]entities.ProjectEntity, error)
+	FindJoinedAll(userId string) ([]entities.ProjectEntity, error)
 	Create(project entities.ProjectEntity) (entities.ProjectEntity, error)
 	Update(project entities.ProjectEntity) (entities.ProjectEntity, error)
 	Delete(id string) error
