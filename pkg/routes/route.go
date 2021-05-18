@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/ophum/humtodo/pkg/controllers"
 	"github.com/ophum/humtodo/pkg/repositories"
 	"github.com/ophum/humtodo/pkg/services"
@@ -30,7 +31,12 @@ func authRoutes(e *echo.Group, userRepo repositories.UserRepository) {
 	{
 		g.POST("/sign-in", authController.SignIn)
 		g.POST("/sign-up", authController.SignUp)
-		g.POST("/verify", authController.Verify)
+
+		auth := g.Group("")
+		auth.Use(middleware.JWT([]byte("test")))
+		{
+			auth.POST("/verify", authController.Verify)
+		}
 	}
 }
 
@@ -38,6 +44,7 @@ func projectRoutes(e *echo.Group, projectRepo repositories.ProjectRepository, ta
 	projectService := services.NewProjectService(projectRepo, taskRepo)
 	projController := controllers.NewProjectController(*projectService)
 	g := e.Group("/projects")
+	g.Use(middleware.JWT([]byte("test")))
 	{
 		g.GET("", projController.Index)
 		g.GET("/:id", projController.Show)
