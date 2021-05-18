@@ -3,7 +3,9 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/ophum/humtodo/pkg/services"
 )
 
@@ -47,10 +49,13 @@ type CreateProjectRequest struct {
 }
 
 func (c *ProjectController) Create(ctx echo.Context) error {
+	user := ctx.Get(middleware.DefaultJWTConfig.ContextKey).(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
 	req := CreateProjectRequest{}
 	ctx.Bind(&req)
 
-	project, err := c.projectService.Create(req.Name)
+	project, err := c.projectService.Create(req.Name, claims["uid"].(string))
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, nil)
 	}

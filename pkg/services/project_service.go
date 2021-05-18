@@ -38,10 +38,13 @@ func (s *ProjectService) FindWithTasks(id string) (entities.ProjectEntity, []ent
 	return project, tasks, nil
 }
 
-func (s *ProjectService) Create(name string) (entities.ProjectEntity, error) {
+func (s *ProjectService) Create(name, uid string) (entities.ProjectEntity, error) {
 	return s.projectRepo.Create(entities.ProjectEntity{
-		Name:      name,
-		MemberIds: []string{},
+		Name:    name,
+		OwnerId: uid,
+		MemberIds: []string{
+			uid,
+		},
 	})
 }
 
