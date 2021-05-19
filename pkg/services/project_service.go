@@ -2,6 +2,8 @@ package services
 
 import (
 	"fmt"
+	"sort"
+	"time"
 
 	"github.com/ophum/humtodo/pkg/entities"
 	"github.com/ophum/humtodo/pkg/repositories"
@@ -36,6 +38,13 @@ func (s *ProjectService) FindWithTasks(id string) (entities.ProjectEntity, []ent
 		return entities.ProjectEntity{},
 			[]entities.TaskEntity{},
 			err
+	}
+	for i := range tasks {
+		sort.Slice(tasks[i].Todos, func(j, k int) bool {
+			a, _ := time.Parse("2006-01-06T15:04", tasks[i].Todos[j].StartDatetime)
+			b, _ := time.Parse("2006-01-06T15:04", tasks[i].Todos[k].StartDatetime)
+			return a.Unix() < b.Unix()
+		})
 	}
 	return project, tasks, nil
 }
@@ -79,16 +88,16 @@ func (s *ProjectService) Join(id, userId string) error {
 	return err
 }
 
-func (s *ProjectService) AddTask(projectId, title string, plan int, assigneeIds []string) (entities.TaskEntity, error) {
+func (s *ProjectService) AddTask(projectId, title string, totalScheduledTime int, assigneeIds []string) (entities.TaskEntity, error) {
 	return s.taskRepo.Create(entities.TaskEntity{
-		Title:       title,
-		Plan:        plan,
-		AssigneeIds: assigneeIds,
-		ProjectId:   projectId,
+		Title:              title,
+		TotalScheduledTime: totalScheduledTime,
+		AssigneeIds:        assigneeIds,
+		ProjectId:          projectId,
 	})
 }
 
-func (s *ProjectService) AddTodo(projId, taskId, assigneeId, description, startDatetime, endDatetime string) (entities.TaskEntity, error) {
+func (s *ProjectService) AddTodo(projId, taskId, assigneeId, description, startDatetime string, scheduledTime int) (entities.TaskEntity, error) {
 	task, err := s.taskRepo.Find(taskId)
 	if err != nil {
 		return entities.TaskEntity{}, err
@@ -101,7 +110,8 @@ func (s *ProjectService) AddTodo(projId, taskId, assigneeId, description, startD
 	return s.taskRepo.AddTodo(taskId, entities.TodoEntity{
 		AssigneeId:    assigneeId,
 		StartDatetime: startDatetime,
-		EndDatetime:   endDatetime,
+		ScheduledTime: scheduledTime,
+		ActualTime:    0,
 		Description:   description,
 	})
 }

@@ -24,9 +24,9 @@ func (c *TaskController) Index(ctx echo.Context) error {
 
 // +gen-ts-entity
 type CreateTaskRequest struct {
-	Title       string   `json:"title"`
-	Plan        int      `json:"plan"`
-	AssigneeIds []string `json:"assignee_ids"`
+	Title              string   `json:"title"`
+	TotalScheduledTime int      `json:"total_scheduled_time"`
+	AssigneeIds        []string `json:"assignee_ids"`
 }
 
 // +gen-ts-entity
@@ -51,7 +51,7 @@ func (c *TaskController) Create(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}
 
-	task, err := c.projectService.AddTask(projId, req.Title, req.Plan, req.AssigneeIds)
+	task, err := c.projectService.AddTask(projId, req.Title, req.TotalScheduledTime, req.AssigneeIds)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}
@@ -65,7 +65,7 @@ func (c *TaskController) Create(ctx echo.Context) error {
 type AddTodoRequest struct {
 	AssigneeId    string `json:"assignee_id"`
 	StartDatetime string `json:"start_datetime"`
-	EndDatetime   string `json:"end_datetime"`
+	ScheduledTime int    `json:"scheduled_time"`
 	Description   string `json:"description"`
 }
 
@@ -92,7 +92,7 @@ func (c *TaskController) AddTodo(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}
 
-	task, err := c.projectService.AddTodo(projId, taskId, req.AssigneeId, req.Description, req.StartDatetime, req.EndDatetime)
+	task, err := c.projectService.AddTodo(projId, taskId, req.AssigneeId, req.Description, req.StartDatetime, req.ScheduledTime)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}

@@ -239,6 +239,6 @@ export interface {{ $v.Name }} {
 {{- range $vv := $v.Fields }}
 	{{ $vv.Name }}: {{$vv.Type }};
 {{- end }}
-};
+}
 {{ end }}
 `
