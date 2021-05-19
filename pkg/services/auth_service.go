@@ -63,7 +63,13 @@ func (s *AuthService) Verify(token string) (string, error) {
 		if !ok {
 			return "", fmt.Errorf("unauthorized")
 		}
-		return s.generateToken(claims["id"].(string), claims["name"].(string))
+
+		userId := claims["uid"].(string)
+		_, err := s.userRepo.Find(userId)
+		if err != nil {
+			return "", fmt.Errorf("unauthorized")
+		}
+		return s.generateToken(claims["uid"].(string), claims["name"].(string))
 	} else if ve, ok := err.(*jwt.ValidationError); ok {
 		return "", ve
 	} else {
