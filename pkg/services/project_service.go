@@ -88,9 +88,11 @@ func (s *ProjectService) Join(id, userId string) error {
 	return err
 }
 
-func (s *ProjectService) AddTask(projectId, title string, totalScheduledTime int, assigneeIds []string) (entities.TaskEntity, error) {
+func (s *ProjectService) AddTask(projectId, title, startDatetime, endDatetime string, totalScheduledTime int, assigneeIds []string) (entities.TaskEntity, error) {
 	return s.taskRepo.Create(entities.TaskEntity{
 		Title:              title,
+		StartDatetime:      startDatetime,
+		EndDatetime:        endDatetime,
 		TotalScheduledTime: totalScheduledTime,
 		AssigneeIds:        assigneeIds,
 		ProjectId:          projectId,

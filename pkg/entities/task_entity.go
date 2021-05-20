@@ -4,6 +4,8 @@ package entities
 type TaskEntity struct {
 	ID                 string       `json:"_id,omitempty"`
 	Title              string       `json:"title"`
+	StartDatetime      string       `json:"start_datetime"`
+	EndDatetime        string       `json:"end_datetime"`
 	TotalScheduledTime int          `json:"total_scheduled_time"`
 	Todos              []TodoEntity `json:"todos"`
 	AssigneeIds        []string     `json:"assignee_ids"`

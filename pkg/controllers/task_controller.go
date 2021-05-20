@@ -25,6 +25,8 @@ func (c *TaskController) Index(ctx echo.Context) error {
 // +gen-ts-entity
 type CreateTaskRequest struct {
 	Title              string   `json:"title"`
+	StartDatetime      string   `json:"start_datetime"`
+	EndDatetime        string   `json:"end_datetime"`
 	TotalScheduledTime int      `json:"total_scheduled_time"`
 	AssigneeIds        []string `json:"assignee_ids"`
 }
@@ -51,7 +53,13 @@ func (c *TaskController) Create(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}
 
-	task, err := c.projectService.AddTask(projId, req.Title, req.TotalScheduledTime, req.AssigneeIds)
+	task, err := c.projectService.AddTask(projId,
+		req.Title,
+		req.StartDatetime,
+		req.EndDatetime,
+		req.TotalScheduledTime,
+		req.AssigneeIds,
+	)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}
