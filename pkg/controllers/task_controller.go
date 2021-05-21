@@ -112,17 +112,24 @@ func (c *TaskController) AddTodo(ctx echo.Context) error {
 }
 
 // +gen-ts-entity
-type UpdateIsDoneTodoRequest struct {
-	TodoId string `json:"todo_id"`
-	IsDone bool   `json:"is_done"`
+type PatchTodoRequest struct {
+	TodoId        string   `json:"todo_id"`
+	PatchFields   []string `json:"patch_fields"`
+	Title         string   `json:"title,omitempty"`
+	AssigneeId    string   `json:"assignee_id,omitempty"`
+	StartDatetime string   `json:"start_datetime,omitempty"`
+	ScheduledTime int      `json:"scheduled_time,omitempty"`
+	ActualTime    int      `json:"actual_time,omitempty"`
+	Note          string   `json:"note,omitempty"`
+	IsDone        bool     `json:"is_done,omitempty"`
 }
 
 // +gen-ts-entity
-type UpdateIsDoneTodoResponse struct {
+type PatchTodoResponse struct {
 	Task entities.TaskEntity `json:"task" ts-import:"../entities/entities"`
 }
 
-func (c *TaskController) UpdateIsDoneTodo(ctx echo.Context) error {
+func (c *TaskController) PatchTodo(ctx echo.Context) error {
 	user := getUser(ctx)
 	projId := ctx.Param("proj_id")
 	taskId := ctx.Param("id")
@@ -135,56 +142,29 @@ func (c *TaskController) UpdateIsDoneTodo(ctx echo.Context) error {
 		})
 	}
 
-	req := UpdateIsDoneTodoRequest{}
+	req := PatchTodoRequest{}
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}
 
-	task, err := c.projectService.UpdateIsDoneTodo(projId, taskId, req.TodoId, req.IsDone)
+	task, err := c.projectService.PatchTodo(
+		projId,
+		taskId,
+		req.TodoId,
+		req.PatchFields,
+		req.Title,
+		req.AssigneeId,
+		req.StartDatetime,
+		req.ScheduledTime,
+		req.ActualTime,
+		req.Note,
+		req.IsDone,
+	)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}
 
-	return ctx.JSON(http.StatusCreated, UpdateIsDoneTodoResponse{
-		Task: task,
-	})
-}
-
-// +gen-ts-entity
-type UpdateTitleTodoRequest struct {
-	TodoId string `json:"todo_id"`
-	Title  string `json:"title"`
-}
-
-// +gen-ts-entity
-type UpdateTitleTodoResponse struct {
-	Task entities.TaskEntity `json:"task" ts-import:"../entities/entities"`
-}
-
-func (c *TaskController) UpdateTitleTodo(ctx echo.Context) error {
-	user := getUser(ctx)
-	projId := ctx.Param("proj_id")
-	taskId := ctx.Param("id")
-
-	if joined, err := c.projectService.IsJoined(projId, user.Uid); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, err)
-	} else if !joined {
-		return ctx.JSON(http.StatusForbidden, map[string]string{
-			"error": "forbidden",
-		})
-	}
-
-	req := UpdateTitleTodoRequest{}
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, err)
-	}
-
-	task, err := c.projectService.UpdateTitleTodo(projId, taskId, req.TodoId, req.Title)
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, err)
-	}
-
-	return ctx.JSON(http.StatusCreated, UpdateTitleTodoResponse{
+	return ctx.JSON(http.StatusCreated, PatchTodoResponse{
 		Task: task,
 	})
 }

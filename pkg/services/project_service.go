@@ -157,3 +157,41 @@ func (s *ProjectService) UpdateTitleTodo(projId, taskId, todoId, title string) (
 	}
 	return entities.TaskEntity{}, fmt.Errorf("Not found")
 }
+
+func (s *ProjectService) PatchTodo(
+	projId, taskId, todoId string, patchFields []string,
+	title, assigneeId, startDatetime string, scheduledTime, actualTime int, note string, isDone bool) (entities.TaskEntity, error) {
+	task, err := s.taskRepo.Find(taskId)
+	if err != nil {
+		return entities.TaskEntity{}, err
+	}
+
+	if task.ProjectId != projId {
+		return entities.TaskEntity{}, fmt.Errorf("Not found")
+	}
+
+	for _, todo := range task.Todos {
+		if todo.ID == todoId {
+			for _, p := range patchFields {
+				switch p {
+				case "title":
+					todo.Title = title
+				case "assignee_id":
+					todo.AssigneeId = assigneeId
+				case "start_datetime":
+					todo.StartDatetime = startDatetime
+				case "scheduled_time":
+					todo.ScheduledTime = scheduledTime
+				case "actual_time":
+					todo.ActualTime = actualTime
+				case "note":
+					todo.Note = note
+				case "is_done":
+					todo.IsDone = isDone
+				}
+			}
+			return s.taskRepo.UpdateTodo(taskId, todo)
+		}
+	}
+	return entities.TaskEntity{}, fmt.Errorf("Not found")
+}
