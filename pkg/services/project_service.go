@@ -137,5 +137,23 @@ func (s *ProjectService) UpdateIsDoneTodo(projId, taskId, todoId string, isDone 
 		}
 	}
 	return entities.TaskEntity{}, fmt.Errorf("Not found")
+}
 
+func (s *ProjectService) UpdateTitleTodo(projId, taskId, todoId, title string) (entities.TaskEntity, error) {
+	task, err := s.taskRepo.Find(taskId)
+	if err != nil {
+		return entities.TaskEntity{}, err
+	}
+
+	if task.ProjectId != projId {
+		return entities.TaskEntity{}, fmt.Errorf("Not found")
+	}
+
+	for _, todo := range task.Todos {
+		if todo.ID == todoId {
+			todo.Title = title
+			return s.taskRepo.UpdateTodo(taskId, todo)
+		}
+	}
+	return entities.TaskEntity{}, fmt.Errorf("Not found")
 }
