@@ -109,3 +109,42 @@ func (c *TaskController) AddTodo(ctx echo.Context) error {
 		Task: task,
 	})
 }
+
+// +gen-ts-entity
+type UpdateIsDoneTodoRequest struct {
+	TodoId string `json:"todo_id"`
+	IsDone bool   `json:"is_done"`
+}
+
+// +gen-ts-entity
+type UpdateIsDoneTodoResponse struct {
+	Task entities.TaskEntity `json:"task" ts-import:"../entities/entities"`
+}
+
+func (c *TaskController) UpdateIsDoneTodo(ctx echo.Context) error {
+	user := getUser(ctx)
+	projId := ctx.Param("proj_id")
+	taskId := ctx.Param("id")
+
+	if joined, err := c.projectService.IsJoined(projId, user.Uid); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	} else if !joined {
+		return ctx.JSON(http.StatusForbidden, map[string]string{
+			"error": "forbidden",
+		})
+	}
+
+	req := UpdateIsDoneTodoRequest{}
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	task, err := c.projectService.UpdateIsDoneTodo(projId, taskId, req.TodoId, req.IsDone)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	return ctx.JSON(http.StatusCreated, AddTodoResponse{
+		Task: task,
+	})
+}

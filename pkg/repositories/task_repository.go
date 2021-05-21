@@ -8,4 +8,5 @@ type TaskRepository interface {
 	Create(task entities.TaskEntity) (entities.TaskEntity, error)
 	Update(task entities.TaskEntity) (entities.TaskEntity, error)
 	AddTodo(taskId string, todo entities.TodoEntity) (entities.TaskEntity, error)
+	UpdateTodo(taskId string, todo entities.TodoEntity) (entities.TaskEntity, error)
 }

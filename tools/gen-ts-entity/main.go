@@ -196,6 +196,7 @@ func transTypeToTS(t string) string {
 		"int64":   "number",
 		"float32": "number",
 		"float64": "number",
+		"bool":    "boolean",
 	}
 
 	tt, is := transMap[t]

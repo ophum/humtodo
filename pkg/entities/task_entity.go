@@ -14,9 +14,11 @@ type TaskEntity struct {
 
 // +gen-ts-entity
 type TodoEntity struct {
+	ID            string `json:"_id,omitempty"`
 	AssigneeId    string `json:"assignee_id,omitempty"`
 	StartDatetime string `json:"start_datetime"`
 	ScheduledTime int    `json:"scheduled_time"`
 	ActualTime    int    `json:"actual_time"`
 	Description   string `json:"description"`
+	IsDone        bool   `json:"is_done"`
 }
