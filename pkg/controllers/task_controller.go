@@ -71,10 +71,11 @@ func (c *TaskController) Create(ctx echo.Context) error {
 
 // +gen-ts-entity
 type AddTodoRequest struct {
+	Title         string `json:"title"`
 	AssigneeId    string `json:"assignee_id"`
 	StartDatetime string `json:"start_datetime"`
 	ScheduledTime int    `json:"scheduled_time"`
-	Description   string `json:"description"`
+	Note          string `json:"note"`
 }
 
 // +gen-ts-entity
@@ -100,7 +101,7 @@ func (c *TaskController) AddTodo(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}
 
-	task, err := c.projectService.AddTodo(projId, taskId, req.AssigneeId, req.Description, req.StartDatetime, req.ScheduledTime)
+	task, err := c.projectService.AddTodo(projId, taskId, req.Title, req.AssigneeId, req.Note, req.StartDatetime, req.ScheduledTime)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err)
 	}

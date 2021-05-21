@@ -99,7 +99,7 @@ func (s *ProjectService) AddTask(projectId, title, startDatetime, endDatetime st
 	})
 }
 
-func (s *ProjectService) AddTodo(projId, taskId, assigneeId, description, startDatetime string, scheduledTime int) (entities.TaskEntity, error) {
+func (s *ProjectService) AddTodo(projId, taskId, title, assigneeId, note, startDatetime string, scheduledTime int) (entities.TaskEntity, error) {
 	task, err := s.taskRepo.Find(taskId)
 	if err != nil {
 		return entities.TaskEntity{}, err
@@ -110,11 +110,12 @@ func (s *ProjectService) AddTodo(projId, taskId, assigneeId, description, startD
 	}
 
 	return s.taskRepo.AddTodo(taskId, entities.TodoEntity{
+		Title:         title,
 		AssigneeId:    assigneeId,
 		StartDatetime: startDatetime,
 		ScheduledTime: scheduledTime,
 		ActualTime:    0,
-		Description:   description,
+		Note:          note,
 		IsDone:        false,
 	})
 }
